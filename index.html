@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vantage ERP</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --panel:#ffffff; --line:#e6e7eb;
+    --ink:#1b1d22; --muted:#7a7d87; --accent:#e8631c; --accent-ink:#ffffff;
+    --ok:#1a9e5c; --ok-bg:#e8f7ef; --off:#9aa0ab; --off-bg:#f0f1f3;
+    --danger:#c8392b;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+    box-sizing:border-box;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#16171b; --panel:#1e1f24; --line:#2c2d33; --ink:#eceef1; --muted:#9297a3;
+      --off-bg:#2a2b30;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#16171b; --panel:#1e1f24; --line:#2c2d33; --ink:#eceef1; --muted:#9297a3; --off-bg:#2a2b30;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI",Inter,Roboto,Arial,sans-serif;font-size:14px;}
+
+  /* ---------- Login ---------- */
+  #login{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .login-card{width:100%;max-width:360px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:32px 28px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+  .logo{display:flex;align-items:center;gap:10px;margin-bottom:22px;}
+  .logo-mark{width:30px;height:30px;border-radius:7px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;}
+  .logo-text b{display:block;font-size:15px;letter-spacing:.2px;}
+  .logo-text span{display:block;font-size:11px;color:var(--muted);letter-spacing:.4px;}
+  .login-card h1{font-size:18px;margin:0 0 4px;}
+  .login-card p{color:var(--muted);margin:0 0 22px;font-size:13px;}
+  label{display:block;font-size:12px;color:var(--muted);margin:14px 0 5px;}
+  input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font-size:14px;}
+  input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .btn{cursor:pointer;border:none;border-radius:7px;font-size:14px;font-weight:600;padding:10px 16px;}
+  .btn-primary{background:var(--accent);color:var(--accent-ink);width:100%;margin-top:20px;}
+  .btn-primary:hover{filter:brightness(1.05);}
+  .err{color:var(--danger);font-size:12.5px;margin-top:10px;min-height:16px;}
+  .hint{margin-top:16px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px;}
+
+  /* ---------- App shell ---------- */
+  #app{display:none;min-height:100%;grid-template-columns:220px 1fr;}
+  #app.on{display:grid;}
+  aside{background:var(--panel);border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;}
+  aside .logo{padding:4px 6px 18px;}
+  nav a{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;color:var(--muted);text-decoration:none;font-size:13.5px;margin-bottom:2px;}
+  nav a .dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.55;}
+  nav a.active{background:var(--off-bg);color:var(--ink);font-weight:600;}
+  nav a.active .dot{background:var(--accent);opacity:1;}
+  .side-foot{margin-top:auto;padding:10px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);}
+
+  main{padding:20px 26px 40px;max-width:1120px;overflow-x:hidden;}
+  header.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+  .crumb{font-size:11.5px;color:var(--muted);letter-spacing:.3px;}
+  h2{margin:2px 0 2px;font-size:21px;}
+  .who{display:flex;align-items:center;gap:10px;}
+  .avatar{width:30px;height:30px;border-radius:50%;background:var(--off-bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ink);}
+  .logout{font-size:12.5px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:7px;padding:6px 10px;cursor:pointer;}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
+  .stat .label{font-size:11.5px;color:var(--muted);}
+  .stat .value{font-size:22px;font-weight:700;margin-top:4px;}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;overflow-x:auto;}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap;gap:8px;}
+  .panel-head h3{margin:0;font-size:14.5px;}
+  .panel-head span{font-size:12px;color:var(--muted);}
+
+  table{width:100%;border-collapse:collapse;min-width:640px;}
+  th{text-align:left;font-size:11px;color:var(--muted);letter-spacing:.3px;padding:10px 16px;border-bottom:1px solid var(--line);}
+  td{padding:11px 16px;border-bottom:1px solid var(--line);font-size:13.5px;}
+  tr:last-child td{border-bottom:none;}
+  .mono{color:var(--muted);font-size:12.5px;}
+  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;}
+  .badge.on{background:var(--ok-bg);color:var(--ok);}
+  .badge.off{background:var(--off-bg);color:var(--off);}
+  .del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px 8px;border-radius:6px;}
+  .del:hover{color:var(--danger);background:var(--off-bg);}
+
+  form.add-row{display:grid;grid-template-columns:1fr 1.6fr 1.2fr 1fr auto;gap:8px;padding:14px 16px;border-top:1px dashed var(--line);}
+  form.add-row input{padding:8px 10px;font-size:13px;}
+  form.add-row .btn{background:var(--ink);color:var(--bg);white-space:nowrap;}
+  @media (max-width: 760px){
+    #app.on{grid-template-columns:1fr;}
+    aside{display:none;}
+    .stats{grid-template-columns:1fr 1fr;}
+    form.add-row{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-card">
+    <div class="logo">
+      <div class="logo-mark">V</div>
+      <div class="logo-text"><b>Vantage</b><span>ERP PLATFORM</span></div>
+    </div>
+    <h1>Sign in</h1>
+    <p>ABC Inc. workspace</p>
+    <form id="loginForm">
+      <label for="u">Username</label>
+      <input id="u" autocomplete="username" placeholder="admin">
+      <label for="p">Password</label>
+      <input id="p" type="password" autocomplete="current-password" placeholder="••••••••">
+      <div class="err" id="loginErr"></div>
+      <button class="btn btn-primary" type="submit">Sign in</button>
+    </form>
+    <div class="hint">Demo accounts — admin / admin123 &nbsp;·&nbsp; manager / erp2026</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <aside>
+    <div class="logo">
+      <div class="logo-mark">V</div>
+      <div class="logo-text"><b>Vantage</b><span>ERP PLATFORM</span></div>
+    </div>
+    <nav>
+      <a class="active" href="#"><span class="dot"></span>Dashboard</a>
+      <a href="#"><span class="dot"></span>Accounts Payable</a>
+      <a href="#"><span class="dot"></span>Purchasing</a>
+      <a href="#"><span class="dot"></span>Inventory</a>
+      <a href="#"><span class="dot"></span>General Ledger</a>
+    </nav>
+    <div class="side-foot">Vantage ERP · demo build<br>Not connected to live data</div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div>
+        <div class="crumb">ACCOUNTS PAYABLE / VENDORS</div>
+        <h2>Vendor Management</h2>
+      </div>
+      <div class="who">
+        <div class="avatar" id="avatarInit">A</div>
+        <button class="logout" id="logoutBtn">Sign out</button>
+      </div>
+    </header>
+
+    <section class="stats" id="stats"></section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h3>Vendors</h3>
+        <span id="vendorCount"></span>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Vendor No.</th><th>Name</th><th>Type</th><th>Status</th><th>Balance</th><th></th></tr>
+        </thead>
+        <tbody id="vendorRows"></tbody>
+      </table>
+      <form class="add-row" id="addForm">
+        <input id="fNo" placeholder="Vendor no. (V1005)" required>
+        <input id="fName" placeholder="Vendor name" required>
+        <input id="fType" placeholder="Type (e.g. Components)">
+        <input id="fBal" placeholder="Balance ($0.00)">
+        <button class="btn" type="submit">+ Add vendor</button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  var USERS = { admin: "admin123", manager: "erp2026" };
+  var vendors = [
+    {no:"V1001", name:"Acme Industrial Corp", type:"Raw Materials", status:"Active", balance:"$12,450.00"},
+    {no:"V1002", name:"Global Tech Logistics", type:"Freight & Shipping", status:"Active", balance:"$4,120.50"},
+    {no:"V1003", name:"Apex Rubber & Plastics", type:"Components", status:"Active", balance:"$8,900.00"},
+    {no:"V1004", name:"Metro IT Solutions", type:"IT Services", status:"Inactive", balance:"$0.00"}
+  ];
+  var currentUser = null;
+
+  var loginEl = document.getElementById('login');
+  var appEl = document.getElementById('app');
+  var loginForm = document.getElementById('loginForm');
+  var loginErr = document.getElementById('loginErr');
+
+  loginForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    var u = document.getElementById('u').value.trim();
+    var p = document.getElementById('p').value;
+    if (USERS[u] && USERS[u] === p){
+      currentUser = u;
+      loginErr.textContent = '';
+      loginEl.style.display = 'none';
+      appEl.classList.add('on');
+      document.getElementById('avatarInit').textContent = u[0].toUpperCase();
+      render();
+    } else {
+      loginErr.textContent = 'Invalid username or password.';
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', function(){
+    currentUser = null;
+    appEl.classList.remove('on');
+    loginEl.style.display = 'flex';
+    document.getElementById('u').value = '';
+    document.getElementById('p').value = '';
+    loginErr.textContent = '';
+  });
+
+  document.getElementById('addForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var no = document.getElementById('fNo').value.trim();
+    var name = document.getElementById('fName').value.trim();
+    if (!no || !name) return;
+    vendors.push({
+      no: no,
+      name: name,
+      type: document.getElementById('fType').value.trim() || 'Supplier',
+      status: 'Active',
+      balance: document.getElementById('fBal').value.trim() || '$0.00'
+    });
+    e.target.reset();
+    render();
+  });
+
+  document.getElementById('vendorRows').addEventListener('click', function(e){
+    if (e.target.classList.contains('del')){
+      var no = e.target.getAttribute('data-no');
+      vendors = vendors.filter(function(v){ return v.no !== no; });
+      render();
+    }
+  });
+
+  function render(){
+    var active = vendors.filter(function(v){ return v.status === 'Active'; }).length;
+    var inactive = vendors.length - active;
+    var stats = [
+      {label:'Total Vendors', value: vendors.length},
+      {label:'Active', value: active},
+      {label:'Inactive', value: inactive},
+      {label:'Open POs', value: 18}
+    ];
+    document.getElementById('stats').innerHTML = stats.map(function(s){
+      return '<div class="stat"><div class="label">'+s.label+'</div><div class="value">'+s.value+'</div></div>';
+    }).join('');
+
+    document.getElementById('vendorCount').textContent = vendors.length + ' records';
+    document.getElementById('vendorRows').innerHTML = vendors.map(function(v){
+      var badge = v.status === 'Active' ? 'on' : 'off';
+      return '<tr>' +
+        '<td class="mono">'+esc(v.no)+'</td>' +
+        '<td>'+esc(v.name)+'</td>' +
+        '<td>'+esc(v.type)+'</td>' +
+        '<td><span class="badge '+badge+'">'+esc(v.status)+'</span></td>' +
+        '<td>'+esc(v.balance)+'</td>' +
+        '<td><button class="del" data-no="'+esc(v.no)+'">Remove</button></td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+})();
+</script>
+</body>
+</html>

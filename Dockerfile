@@ -13,7 +13,7 @@ RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 # Copy built dependencies from builder stage
 COPY --from=builder /root/.local /home/appuser/.local
-COPY app.py .
+COPY app.py index.html .
 
 # Grant execution ownership to non-root user
 RUN chown -R appuser:appgroup /app
