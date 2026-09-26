@@ -45,10 +45,10 @@ jobs:
 
       - name: Push image
         run: |
-          REPO_LOWER=\((echo "\){{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          
-          docker tag erp-crud-demo:\({{ github.sha }} ghcr.io/\){REPO_LOWER}:latest
-          docker tag erp-crud-demo:\({{ github.sha }} ghcr.io/\){REPO_LOWER}:${{ github.sha }}
-          
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+
+          docker tag erp-crud-demo:${{ github.sha }} ghcr.io/${REPO_LOWER}:latest
+          docker tag erp-crud-demo:${{ github.sha }} ghcr.io/${REPO_LOWER}:${{ github.sha }}
+
           docker push ghcr.io/${REPO_LOWER}:latest
-          docker push ghcr.io/$({REPO_LOWER}:$){{ github.sha }}
+          docker push ghcr.io/${REPO_LOWER}:${{ github.sha }}
