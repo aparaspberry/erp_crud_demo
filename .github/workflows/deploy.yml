@@ -51,4 +51,4 @@ jobs:
           docker tag erp-crud-demo:\({{ github.sha }} ghcr.io/\){REPO_LOWER}:${{ github.sha }}
           
           docker push ghcr.io/${REPO_LOWER}:latest
-          docker push ghcr.io/\({REPO_LOWER}:\){{ github.sha }}
+          docker push ghcr.io/$({REPO_LOWER}:$){{ github.sha }}
